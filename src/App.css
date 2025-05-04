@@ -1,6 +1,14 @@
 .App {
   text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
+.App-Body 
+  { display: flex; flex-direction: row; flex: 1; overflow: hidden; }
+
 
 .App-logo {
   height: 40vmin;
