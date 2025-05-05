@@ -1,0 +1,7 @@
+.MapContainer {
+  flex: 1;
+  background-color: #111;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
