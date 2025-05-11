@@ -4,28 +4,42 @@ import { getTilePath } from "./getTile";
 const MAX_ZOOM = 3;
 
 const VIEWPORT_SIZE = 400;
-const TILE_DIM = 256;
 
 const Tiler: React.FC = () => {
-  const [zoom, setZoom] = React.useState(1);
+  // const initZoom = 0;
+  // const midX = (VIEWPORT_SIZE - TILE_DIM * (initZoom + 1)) / 2;
+  const [zoom, setZoom] = React.useState(0);
   const [isPanning, setPanning] = React.useState(false);
   const [origin, setOrigin] = React.useState([0, 0]);
-  const tilesDim = TILE_DIM * Math.pow(2, zoom);
-  const delta = VIEWPORT_SIZE - tilesDim;
-  console.log(delta);
-  // 400 - 512 =
+
+  const handleReset = () => {
+    setZoom(0);
+    setOrigin([0, 0]);
+  };
 
   const handleZoom = (factor = 1) => {
     if ((factor > 0 && zoom !== MAX_ZOOM) || (factor < 0 && zoom !== 0)) {
-      setZoom((zoom) => zoom + factor);
+      const newZoom = zoom + factor;
+      setZoom(newZoom);
+
+      const offset = VIEWPORT_SIZE / 2;
 
       if (factor > 0) {
-        // setOrigin(([originX, originY]) => {
-        //   console.log([(originX * 2 + delta), (originY * 2 + delta)])
-        //   return [(originX * 2 + delta), (originY * 2 + delta)]});
-        setOrigin(([originX, originY]) => [originX * 2 - VIEWPORT_SIZE/2, originY * 2 - VIEWPORT_SIZE/2]);
+        setOrigin(([originX, originY]) => {
+          const newX = originX * 2 - offset;
+          const newY = originY * 2 - offset;
+          return [newX, newY];
+        });
       } else {
-        setOrigin(([originX, originY]) => [originX / 2 + VIEWPORT_SIZE/4, originY / 2  + VIEWPORT_SIZE/4]);
+        // 3 +800 => 2 -1400 => -600
+        // 2 +400 => 1
+        // 1 +200 => 0
+
+        setOrigin(([originX, originY]) => {
+          const newX2 = (originX + offset) / 2;
+          const newY2 = (originY + offset) / 2;
+          return [newX2, newY2];
+        });
       }
     }
   };
@@ -70,20 +84,75 @@ const Tiler: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          bottom: "1rem",
+          top: 0,
+          right: 0,
+          width: VIEWPORT_SIZE,
+          height: VIEWPORT_SIZE,
+          zIndex: 100,
+          border: "1px solid #ddd",
+        }}
+      ></div>
+      <div
+        style={{
+          position: "absolute",
+          top: "1rem",
           right: "1rem",
           width: "36px",
-          zIndex: 1000,
+          zIndex: 100,
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <button data-testid="zoom-in" onClick={() => handleZoom(1)}>
+        <button title="Zoom In" data-testid="zoom-in" onClick={() => handleZoom(1)}>
           +
         </button>
-        <button data-testid="zoom-out" onClick={() => handleZoom(-1)}>
+        <button title="Zoom Out" data-testid="zoom-out" onClick={() => handleZoom(-1)}>
           -
         </button>
+        <button title="Reset" data-testid="reset" onClick={handleReset}>
+          []
+        </button>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          width: "2px",
+          height: "100%",
+          left: "199px",
+          top: "0",
+          backgroundColor: "rgba(255,255,255,.2)",
+          zIndex: 100000,
+        }}
+      ></div>
+      <div
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "2px",
+          left: "0",
+          top: "199px",
+          backgroundColor: "rgba(255,255,255,.2)",
+          zIndex: 100000,
+        }}
+      ></div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          width: "100%",
+          height: "2rem",
+          zIndex: 1000,
+          display: "flex",
+          flexDirection: "row",
+          gap: ".2rem",
+          backgroundColor: "rgba(255,255,255,.9)",
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <span>originX: {origin[0]}</span>
+        <span>originY: {origin[1]}</span>
       </div>
       <div
         onWheel={handleScroll}
